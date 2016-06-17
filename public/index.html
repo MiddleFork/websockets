@@ -1,0 +1,54 @@
+<html>
+  <head>
+	<title>Websocket Reading Monitor</title>
+	<link rel="stylesheet" type="text/css" href="client.css" />
+  </head>
+  <body>
+	<div style="float:right;">
+	  <label for="title">New title (global): </label>
+	  <input type="text" id="title" />
+	  <input type="button" id="title-button" value="Update Title" />
+	</div>
+
+	<h2 id="message">Message</h2>
+	<div>
+	  <label for="account">Account: </label>
+	  <input type="number" id="account" />
+	  <input type="button" id="account-button" value="Start" />
+	</div>
+	<br/>
+	
+	<fieldset>
+	  <legend>Reading</legend>
+	  <label for="id">ID: </label>
+	  <input type="text" id="id" />
+	  <label for="id">latitude: </label>
+	  <input type="number" id="latitude" />
+	  <label for="id">longitude: </label>
+	  <input type="number" id="longitude" />
+	  <input type="button" id="reading-button" value="Submit Reading" disabled="true" />
+	</fieldset>
+	<br/>
+	
+	<div id="data">
+	  <table id="data-table">
+		<thead>
+		  <tr>
+			<th>ID</th>
+			<th>latitude</th>
+			<th>longitude</th>
+		  </tr>
+		</thead>
+		<tbody id="data-table-body">
+		</tbody>
+	  </table>
+	</div>
+
+	<div id="counter">
+	  Readings received: <span id="counter-value">#</span>
+	</div>
+	
+	<script src="/socket.io.js"></script>
+	<script src="/client.js"></script>
+  </body>
+</html>

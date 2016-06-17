@@ -1,0 +1,13 @@
+input[type=button] {
+	border-radius: 8px;
+	padding: 1em;
+	font-size: 1.1em;
+	font-weight: bold;
+	text-transform:uppercase;
+}
+input[type=button].stop {
+	background-color: red;
+}
+input[type=button].start {
+	background-color: green;
+}

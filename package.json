@@ -1,0 +1,10 @@
+{
+    "name": "websockets",
+    "version": "0.0.0",
+    "description": "WebSocket prototype",
+    "dependencies": {
+        "socket.io": "latest",
+        "express": "latest"
+     },
+    "author": "Steven Pothoven"
+}
