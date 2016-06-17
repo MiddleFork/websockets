@@ -15,6 +15,7 @@ window.onload = function() {
     var readingButton = document.getElementById("reading-button");
 
     var tableBody     = document.getElementById("data-table-body");
+    var deviceValue   = document.getElementById("device-value");
     var counterValue  = document.getElementById("counter-value");
     var counter       = 0;
     var currentAccount;
@@ -49,18 +50,20 @@ window.onload = function() {
                 newTR.appendChild(latTD);
                 newTR.appendChild(longTD);
 
-                if (tableBody.childElementCount === 0) {
-                    tableBody.appendChild(newTR);
-                } else {
-                    /* find proper place to insert row (sorted) */
-                    for (var i = 0; i < tableBody.childElementCount; i++) {
-                        oldTR = tableBody.children[i];
-                        if (oldTR.id > newTR.id) {
-                            tableBody.insertBefore(newTR, oldTR);
-                            break;
-                        }
+                /* find proper place to insert row (sorted) */
+                var added = false;
+                for (var i = 0; i < tableBody.childElementCount; i++) {
+                    oldTR = tableBody.children[i];
+                    if (oldTR.id > newTR.id) {
+                        tableBody.insertBefore(newTR, oldTR);
+                        added = true;
+                        break;
                     }
                 }
+                if (!added) {
+                    tableBody.appendChild(newTR);
+                }
+                deviceValue.innerHTML = tableBody.childElementCount;
             }
             counter++;
             counterValue.innerHTML = counter;
