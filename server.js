@@ -8,17 +8,48 @@ var websocketServer = function() {
     var app         = express();
     var defaultPort = 3700;
     var title       = "Welcome to the reading monitor";
-    var numAccounts = 5000;
+    var numAccounts = 5;
     var namespaces  = {};
     var deviceLists = {};
+    var io;
+
+    function getNamespaceForAccount(accountId) {
+        var nsp = namespaces[accountId];
+        if (! nsp) {
+            nsp = io.of('/' + accountId);
+            namespaces[accountId] = nsp;
+            console.log("Creating namespace connection for ", accountId);
+        }
+        return nsp;
+    }
     
+    function processReading(reading) {
+        var accountId = Number.parseInt(reading.account);
+        var nsp = getNamespaceForAccount(accountId);
+        
+        /* if this is a device if that is new to the account, add it to the device list */
+        if (reading.account in deviceLists) {
+            if (deviceLists[reading.account].indexOf( reading.id )  === -1 ) {
+                deviceLists[reading.account].push(reading.id);
+                deviceLists[reading.account].sort();
+                nsp.emit('deviceList', deviceLists[reading.account]);
+            }
+        } else {
+            deviceLists[reading.account] = [ reading.id ];
+            nsp.emit('deviceList', deviceLists[reading.account]);
+        }
+        
+        /* publish the reading to the device specific room */
+        nsp.in(reading.id).emit('reading', reading);
+        
+    }
 
     return {
         start: function(port = defaultPort) {
             
             app.use(express.static(__dirname + '/public'));
             
-            var io = require('socket.io').listen(app.listen(port));
+            io = require('socket.io').listen(app.listen(port));
             console.log("Listening on port " + port);
             
             /* global namespace */
@@ -35,14 +66,19 @@ var websocketServer = function() {
                     }
                     
                 });
+
+                /* receive readings on global namespace, but send them to account specific namespaces */
+                socket.on('reading', function(data) {
+                    if (data.reading && data.reading.account && data.reading.id) {
+                        processReading(data.reading);
+                    }
+                });
             });
             
             /* namespace per account */
             /* each device in the account gets a room */
             for (var accountId = 0; accountId < numAccounts; accountId++) {
-                var nsp = io.of('/' + accountId);
-                namespaces[accountId] = nsp;
-                console.log("Creating namespace connection for ", accountId);
+                var nsp = getNamespaceForAccount(accountId);
                 
                 nsp.on('connection', function (socket) {
                     var nspAccountId = socket.nsp.name.replace( /^\D+/g, '');
@@ -78,7 +114,12 @@ var websocketServer = function() {
                         }
                         
                         if (data.reading && data.reading.account && data.reading.id) {
-                            /* if this is a device if that is new to the account, add it to the device list */
+                            processReading(data.reading);
+                        }
+
+                        /*
+                        if (data.reading && data.reading.account && data.reading.id) {
+                            /* if this is a device if that is new to the account, add it to the device list 
                             if (data.reading.account in deviceLists) {
                                 if (deviceLists[data.reading.account].indexOf( data.reading.id )  === -1 ) {
                                     deviceLists[data.reading.account].push(data.reading.id);
@@ -92,10 +133,10 @@ var websocketServer = function() {
                                 socket.broadcast.emit('deviceList', deviceLists[data.reading.account]);
                             }
 
-                            /* publish the reading to the room */
-                            /* socket.emit('reading', data.reading);  -- if want to send to sender */
+                            /* socket.emit('reading', data.reading);  -- if want to send to sender 
                             socket.in(data.reading.id).broadcast.emit('reading', data.reading);
-                        }
+                            }
+                        */
                     });
                     
                     socket.on('disconnect', function() {

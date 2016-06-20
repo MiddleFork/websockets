@@ -5,3 +5,5 @@ var fs = require('fs');
 eval(fs.readFileSync('public/simulator.js')+'');
 
 simulator.start();
+//simulator.oneTime(1);
+
