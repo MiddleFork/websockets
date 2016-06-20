@@ -27,6 +27,10 @@ table {
 	border-collapse: collapse;
 }
 
+table th {
+	text-align: right;
+}
+
 table, th, td {
 	border: 1px solid #d7d7d7;
 	padding: 0 1em;

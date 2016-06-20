@@ -26,7 +26,8 @@ server for distribution to the clients.
 account ids 1-5, so enter a value of 1-5 in the account field and
 press 'Start'.  
 
-4. Start the simulator by opening a browser to
+4. Start the simulator by either starting it up as a node process
+`node simulator.js` or by opening a browser to
 `http://localhost:3700/simulator.html`.  Then press the "Start"
 button.
 

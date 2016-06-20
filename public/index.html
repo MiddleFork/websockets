@@ -11,32 +11,63 @@
 	</div>
 
 	<h2 id="message">Message</h2>
-	<div>
-	  <label for="account">Account: </label>
-	  <input type="number" id="account" />
-	  <input type="button" id="account-button" value="Start" />
+
+	<div style="float: left;">
+	  <fieldset style="width: 100%;">
+		<legend>Settings</legend>
+
+		<div>
+		  <label for="account">Account: </label>
+		  <input type="number" id="account" />
+		  <input type="button" id="account-button" value="Start" />
+		</div>
+		<br/>
+		
+		<h3>Device List</h3>
+		<div>
+		  <select id="deviceList" multiple="multiple" size="10" style="width: 15em;">
+		  </select>
+		  <input type="button" id="device-button" value="Subscribe" disabled="true" />
+		  <input type="button" id="deviceAll-button" value="Subscribe All" disabled="true" />
+		</div>
+		<br/>
+
+		</fieldset>
 	</div>
-	<br/>
 	
-	<fieldset>
-	  <legend>Reading</legend>
-	  <label for="id">ID: </label>
-	  <input type="text" id="id" />
-	  <label for="id">latitude: </label>
-	  <input type="number" id="latitude" />
-	  <label for="id">longitude: </label>
-	  <input type="number" id="longitude" />
-	  <input type="button" id="reading-button" value="Submit Reading" disabled="true" />
-	</fieldset>
-	<br/>
+	<div style="width: 20em; float: right;">
+	  <fieldset>
+		<legend>Manual Reading</legend>
+		<table>
+		  <tr>
+			<th><label for="id">Device ID: </label></th>
+			<td><input type="text" id="id" /></td>
+		  </tr>
+		  <tr>
+			<th><label for="id">Latitude: </label></th>
+			<td><input type="number" id="latitude" /></td>
+		  </tr>
+		  <tr>
+			<th><label for="id">Longitude: </label></th>
+			<td><input type="number" id="longitude" /></td>
+		  </tr>
+		</table>
+		<p>
+		  <input type="button" id="reading-button" value="Submit Reading" disabled="true" />
+		</p>
+	  </fieldset>
+	</div>
+	
+	
+	<br style="clear:both;" />
 	
 	<div id="data">
 	  <table id="data-table">
 		<thead>
 		  <tr>
-			<th>ID</th>
-			<th>latitude</th>
-			<th>longitude</th>
+			<th>Device ID</th>
+			<th>Latitude</th>
+			<th>Longitude</th>
 		  </tr>
 		</thead>
 		<tbody id="data-table-body">
@@ -45,10 +76,11 @@
 	</div>
 
 	<div id="counter">
-	  Devices: <span id="device-value">#</span> | Readings received: <span id="counter-value">#</span>
+	  Subscribed Devices: <span id="subdevice-value">#</span> | Total Devices: <span id="device-value">#</span> | Readings received: <span id="counter-value">#</span>
 	</div>
 	
 	<script src="/socket.io.js"></script>
 	<script src="/client.js"></script>
+	<script src="/client-ui.js"></script>
   </body>
 </html>

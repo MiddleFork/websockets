@@ -9,11 +9,23 @@
 
 	<input type="button" id="stop" class="start" value="Start" />
 
+	<br/>
 	<div id="log">
 	</div>
 	
 	<script src="/socket.io.js"></script>
 	<script src="/simulator.js"></script>
+	<script type="text/javascript">
+	  window.onload = function() {
+	    var status = document.getElementById("status");
+        var message = document.getElementById("log");
+        var stopButton = document.getElementById("stop");
+        stopButton.onclick = function() {
+          /* 100 readings ever 100 ms */
+          simulator.start(100, 100, stopButton, status, message);
+        };
+	  };
+	</script>
 
   </body>
 </html>
