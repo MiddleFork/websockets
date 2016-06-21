@@ -23,7 +23,9 @@ var simulator = function() {
         var newReading    = {account : accountId,
                              id : accountId + (("0000000000" + Math.round(Math.random() * (numDevicesPerAccount - 1))).slice(-10 + accountId.toString().length)),
                              latitude : (Math.random() * 360) - 180,
-                             longitude : (Math.random() * 180) - 90 };
+                             longitude : (Math.random() * 180) - 90,
+                             speed: (Math.random() * 3000).toFixed(1),
+                             heading: (Math.random() * 360).toFixed(1)};
         /*            sockets[randomAccount].emit('send', { reading : newReading}); */
         socket.emit('reading', { reading : newReading});
         counter++;

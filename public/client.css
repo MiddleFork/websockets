@@ -41,7 +41,7 @@ table thead tr {
 	
 }
 
-td.latitude, td.longitude {
+td.latitude, td.longitude, td.speed, td.heading {
 	text-align: right;
 }
 

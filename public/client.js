@@ -34,11 +34,12 @@ var websocketClient = function() {
         
         connectToAccount : function(accountId, deviceListEl, deviceCountEl, readingTblEl, readingCountEl) {
             
-            if (accountId.length > 0) {
+            if (accountId.length > 0 && currentAccount != accountId) {
                 if (acct_socket) {
                     console.log("Disconnecting");
                     /* clear out old account devices */
                     deviceListEl.innerHTML = "";
+                    subscribedDevices      = [];
                     /* clear out old account readings */
                     readingTblEl.innerHTML = "";
 
@@ -46,8 +47,11 @@ var websocketClient = function() {
                 }
 
                 acct_socket = io.connect(serverURL + accountId);
-                currentAccount = accountId;
-                console.log("Connected to ", accountId);
+
+                acct_socket.on('connect', function() {
+                    currentAccount    = accountId;
+                    console.log("Connected to ", accountId);
+                });
                 
                 /* listen for new device lists */
                 acct_socket.on('deviceList', function(data) {
@@ -70,6 +74,8 @@ var websocketClient = function() {
                         if (oldTR) {
                             oldTR.children[1].innerHTML = data.latitude;
                             oldTR.children[2].innerHTML = data.longitude;
+                            oldTR.children[3].innerHTML = data.speed;
+                            oldTR.children[4].innerHTML = data.heading;
                         } else {
                             var newTR = document.createElement("tr");
                             newTR.setAttribute("id", "data-" + data.id);
@@ -77,16 +83,24 @@ var websocketClient = function() {
                             var idTD   = document.createElement("td");
                             var latTD  = document.createElement("td");
                             var longTD = document.createElement("td");
+                            var speedTD  = document.createElement("td");
+                            var headingTD = document.createElement("td");
                             latTD.setAttribute("class", "latitude");
                             longTD.setAttribute("class", "longitude");
+                            speedTD.setAttribute("class", "speed");
+                            headingTD.setAttribute("class", "heading");
                             
                             idTD.innerHTML   = data.id;
                             latTD.innerHTML  = data.latitude;
                             longTD.innerHTML = data.longitude;
+                            speedTD.innerHTML  = data.speed;
+                            headingTD.innerHTML = data.heading;
                             
                             newTR.appendChild(idTD);
                             newTR.appendChild(latTD);
                             newTR.appendChild(longTD);
+                            newTR.appendChild(speedTD);
+                            newTR.appendChild(headingTD);
                             
                             /* find proper place to insert row (sorted) */
                             var added = false;
@@ -130,16 +144,21 @@ var websocketClient = function() {
             subscribedDevices = deviceList;
         },
 
-        submitManualReading : function(deviceId, latitude, longitude) {
+        submitManualReading : function(accountId, deviceId, latitude, longitude, speed, heading) {
             /* auto subscribe to new maunally submitted device readings */
             if (subscribedDevices.indexOf(deviceId) === -1) {
                 subscribedDevices.push(deviceId);
                 this.subscribeToDevices(subscribedDevices);
             }
-            if (currentAccount && deviceId && latitude && longitude) {
-                var newReading = {account: currentAccount, id : deviceId, latitude : latitude, longitude : longitude };
+            if (accountId && deviceId && latitude && longitude) {
+                var newReading = {account: accountId,
+                                  id : deviceId,
+                                  latitude : latitude,
+                                  longitude : longitude,
+                                  speed: speed,
+                                  heading: heading};
                 console.log("sending: ", newReading );
-                acct_socket.emit('send', { reading : newReading});
+                socket.emit('reading', { reading : newReading});
             }
         }
     };

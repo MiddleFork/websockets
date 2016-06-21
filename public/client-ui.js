@@ -59,11 +59,17 @@ window.onload = function() {
             }
             websocketClient.subscribeToDevices(devices);
 
-            subscribedDeviceCountEl.innerHTML = deviceListEl.selectedOptions.length;
+            subscribedDeviceCountEl.innerHTML = deviceListEl.options.length;
         };
         
         readingButton.onclick = function() {
-            websocketClient.submitManualReading(id.value, latitude.value, longitude.value);
+            websocketClient.submitManualReading(accountEl.value,
+                                                id.value,
+                                                latitude.value,
+                                                longitude.value,
+                                                speed.value,
+                                                heading.value
+                                               );
         };
         
     } else {
