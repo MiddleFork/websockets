@@ -50,3 +50,15 @@ div#counter {
 	bottom: 0;
 	right: 1em;
 }
+
+div#data {
+	float:left;
+}
+
+div#map {
+	float: right;
+	width: 600px;
+	height: 500px;
+	margin-bottom: 1em;
+	padding-bottom: 1em;
+}

@@ -10,11 +10,29 @@ var websocketClient = function() {
     var subscribedDevices = [];
     var counter           = 0;
     var currentAccount;
+    var _map;
+    var markers = {};
     
-    
+
+    function markDevice(id, latitude, longitude) {
+        var marker = markers[id];
+        if (marker) {
+            marker.setPosition( new google.maps.LatLng(latitude, longitude) );
+        } else {
+            var location = new google.maps.LatLng(latitude, longitude);
+            marker = new google.maps.Marker({
+                position: location,
+                map: _map
+            });
+            markers[id] = marker;
+        }
+    }
+
+
     return {
         
-        start: function(messageEl) {
+        start: function(messageEl, map) {
+            _map = map;
             socket.on('message', function(data){
                 if (data.title) {
                     messageEl.innerHTML = data.title;
@@ -116,6 +134,8 @@ var websocketClient = function() {
                                 readingTblEl.appendChild(newTR);
                             }
                         }
+                        markDevice(data.id, data.latitude, data.longitude);
+
                         counter++;
                         readingCountEl.innerHTML = counter;
                     }

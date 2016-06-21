@@ -22,10 +22,16 @@ window.onload = function() {
     var deviceCountEl           = document.getElementById("device-value");
     var readingCountEl          = document.getElementById("counter-value");
 
+    var mapOptions = {
+        zoom: 4,
+        center: new google.maps.LatLng(40.8191, -96.710716),  //approx center of US
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
     if (websocketClient) {
 
-        websocketClient.start(message);
+        websocketClient.start(message, map);
         
         titleButton.onclick = function() {
             websocketClient.changeTitle(titleEl.value, message);
