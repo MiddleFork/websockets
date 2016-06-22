@@ -47,6 +47,8 @@ var websocketServer = function() {
                         for (var u = 0; u < data.unsubscribe.length; u++) {
                             socket.leave(data.unsubscribe[u]);
                         }
+                        socket.emit('deviceList', deviceLists[nspAccountId]);
+
                     }
                     
                     if (data.subscribe) {

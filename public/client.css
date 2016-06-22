@@ -41,6 +41,11 @@ table thead tr {
 	
 }
 
+table#data-table tbody tr.selected,
+table#data-table tbody tr:hover {
+	background-color: lightcyan;
+}
+
 td.latitude, td.longitude, td.speed, td.heading {
 	text-align: right;
 }
@@ -52,10 +57,12 @@ div#counter {
 }
 
 div#data {
+	clear: left;
 	float:left;
 }
 
 div#map {
+	clear: right;
 	float: right;
 	width: 600px;
 	height: 500px;

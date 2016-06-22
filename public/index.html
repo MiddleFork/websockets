@@ -27,8 +27,11 @@
 		<div>
 		  <select id="deviceList" multiple="multiple" size="10" style="width: 15em;">
 		  </select>
-		  <input type="button" id="device-button" value="Subscribe" disabled="true" />
-		  <input type="button" id="deviceAll-button" value="Subscribe All" disabled="true" />
+		  <p>
+			<input type="button" id="device-button" value="Selected" disabled="true" />
+			<input type="button" id="deviceAll-button" value="All" disabled="true" />
+			<input type="button" id="deviceNone-button" value="None" disabled="true" />
+		  </p>
 		</div>
 		<br/>
 
@@ -90,10 +93,10 @@
 	<div id="counter">
 	  Subscribed Devices: <span id="subdevice-value">#</span> | Total Devices: <span id="device-value">#</span> | Readings received: <span id="counter-value">#</span>
 	</div>
-	
-	<script type="text/javascript" src="/socket.io.js"></script>
+
 	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-	<script type="text/javascript" src="/client.js"></script>
+	<script type="text/javascript" src="/socket.io.js"></script>
+	<script type="text/javascript" src="/ws_client.js"></script>
 	<script type="text/javascript" src="/client-ui.js"></script>
   </body>
 </html>
