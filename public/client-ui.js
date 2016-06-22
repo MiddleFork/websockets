@@ -26,43 +26,6 @@ window.onload = function() {
     var deviceCountEl           = document.getElementById("device-value");
     var readingCountEl          = document.getElementById("counter-value");
 
-    var mapOptions = {
-        zoom: 4,
-        center: new google.maps.LatLng(40.8191, -96.710716),  //approx center of US
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-    var markers = {};
-    
-    function markDevice(id, latitude, longitude, speed) {
-        var marker = markers[id];
-        if (marker) {
-            marker.setPosition( new google.maps.LatLng(latitude, longitude) );
-        } else {
-            var location = new google.maps.LatLng(latitude, longitude);
-            marker = new google.maps.Marker({
-                position: location,
-                map: map,
-                title: id.toString()
-            });
-            markers[id] = marker;
-            marker.addListener("mouseover", function(event) {
-                document.getElementById("data-" + id).classList.add("selected");
-            });
-            marker.addListener("mouseout", function(event) {
-                document.getElementById("data-" + id).classList.remove("selected");
-            });
-            
-        }
-
-        if (speed > 0) {
-            marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-        } else {
-            marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-        }
-
-        return marker;
-    }
 
     /* callback functions provided to the client */
 
@@ -101,16 +64,18 @@ window.onload = function() {
             var deviceId = deviceData.getAttribute("id").substring(5);
             if (subscribedDevices.indexOf(deviceId ) === -1) {
                 readingTblEl.removeChild(deviceData);
-                var marker = markers[deviceId];
-                marker.setMap(null);
-                delete markers[deviceId];
+                if (deviceMap) {
+                    deviceMap.removeDevice(deviceId);
+                }
             }
         }
 
     }
     
     function updateDevice(device, counter) {
-        var marker = markDevice(device.id, device.latitude, device.longitude, device.speed);
+        if (deviceMap) {
+            deviceMap.markDevice(device.id, device.latitude, device.longitude, device.speed);
+        }
 
         if (device.id) {
             var oldTR = document.getElementById("data-" + device.id);
@@ -160,11 +125,11 @@ window.onload = function() {
                     readingTblEl.appendChild(newTR);
                 }
 
-                newTR.onclick = function() {
-                    if (map && marker) {
-                        map.setCenter(marker.getPosition());
-                    }
-                };
+                if (deviceMap) {
+                    newTR.onclick = function() {
+                        deviceMap.centerOnDevice(device.id);
+                    };
+                }
             }
             
             readingCountEl.innerHTML = counter;

@@ -10,11 +10,11 @@ var simulator = function() {
 
 	var sockets              = {};
     var numAccounts          = 10;
-    var numDevicesPerAccount = 1000;
+    var numDevicesPerAccount = 100;
     var intervalId;
     var counter              = 0;
     var _batchSize           = 100;
-    var _intervalDelay       = 100;
+    var _intervalDelay       = 1000;
     var _button;
     var _status;
     var _message;
