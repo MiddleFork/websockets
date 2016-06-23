@@ -44,7 +44,6 @@ var simulator = function() {
         vNewLatLng[0] = ToDeg(vNewLat);
         vNewLatLng[1] = ToDeg(vNewLng);
 
-        console.log("NEW COORD: ", vNewLatLng);
         return vNewLatLng;
     }
 
@@ -103,7 +102,7 @@ var simulator = function() {
         if (_message) {
             _message.innerHTML = counter + " : " + JSON.stringify(devices[deviceId]);
         } else {
-            console.log(counter, " : ", devices[deviceId] );
+            process.stdout.write("Readings send: " + counter + "\r" );
         }
         
     }
@@ -128,6 +127,8 @@ var simulator = function() {
             _message       = messageEl;
             _status        = statusEl;
             _button        = buttonEl;
+
+            console.log("Starting simulation sending " + batchSize + " readings every " + intervalDelay + " milliseconds to " + numAccounts + " accounts");
             
             /* open socket for each account */
             /*
@@ -150,7 +151,8 @@ var simulator = function() {
 
         stop : function() {
             clearInterval(intervalId);
-
+            console.log("Simulation stopped.");
+            
             /* close socket for each account */
             /*
             for (var accountId = 0; accountId < numAccounts; accountId++) {

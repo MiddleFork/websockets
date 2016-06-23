@@ -4,6 +4,6 @@ var fs = require('fs');
 // file is included here:
 eval(fs.readFileSync('public/simulator.js')+'');
 
-simulator.start();
+simulator.start(200);
 //simulator.oneTime(1);
 
