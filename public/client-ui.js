@@ -151,7 +151,10 @@ window.onload = function() {
         if (accountButton) {
             accountButton.onclick = function() {
                 if (accountEl && accountEl.value.length > 0) {
-                    websocketClient.connectToAccount(accountEl.value, connectedTo, updateDeviceList, updateDevice);
+                    websocketClient.connectToAccount(accountEl.value,
+                                                     {connect    : connectedTo,
+                                                      deviceList : updateDeviceList,
+                                                      reading    : updateDevice});
                 }
             };
         }

@@ -32,7 +32,7 @@ var websocketClient = function() {
             return title;
         },
         
-        connectToAccount : function(accountId, connectCallbackFn, deviceListCallbackFn, deviceCallbackFn) {
+        connectToAccount : function(accountId, callbackFns) {
             
             if (accountId.length > 0 && currentAccount != accountId) {
                 if (acct_socket) {
@@ -48,17 +48,23 @@ var websocketClient = function() {
                 acct_socket.on('connect', function() {
                     currentAccount = accountId;
                     console.log("Connected to ", accountId);
-                    connectCallbackFn(currentAccount);
+                    if (callbackFns.connect) {
+                        callbackFns.connect(currentAccount);
+                    }
                 });
                 
                 /* listen for new device lists */
                 acct_socket.on('deviceList', function(data) {
-                    deviceListCallbackFn(data, subscribedDevices);
+                    if (callbackFns.deviceList) {
+                        callbackFns.deviceList(data, subscribedDevices);
+                    }
                 });
                 
                 /* listen for new readings for subscribed devices */
                 acct_socket.on('reading', function(data) {
-                    deviceCallbackFn(data, readingCounter++);
+                    if (callbackFns.reading) {
+                        callbackFns.reading(data, readingCounter++);
+                    }
                 });
                 
             }
