@@ -20,6 +20,8 @@ MQ queue and send them to the server for distribution to the clients.
 different accounts and device ids and send them to the server for
 distribution to the clients.
 
+![alt tag](https://raw.githubusercontent.com/pothoven/websockets/master/public/Websocket_Reading_Monitor.png)
+
 ## Installation
 
 1. Clone the git repository
