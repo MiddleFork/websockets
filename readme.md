@@ -20,7 +20,7 @@ MQ queue and send them to the server for distribution to the clients.
 different accounts and device ids and send them to the server for
 distribution to the clients.
 
-![Screenhot](public/Websocket_Reading_Monitor.png)
+![Screenshot of demo client](public/Websocket_Reading_Monitor.png)
 
 ## Installation
 
