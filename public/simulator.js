@@ -20,6 +20,25 @@ var simulator = function() {
     var _message;
     var devices = {};
 
+    function inUSA(lat, lng) {
+        var inState = false;
+        if (typeof statePolys !== "undefined") {
+            console.log("checking: " + lat, lng);
+            var latLng = new google.maps.LatLng(lat, lng);
+            var states = Object.keys(statePolys);
+            for (var s = 0; s < states.length; s++) {
+                if (google.maps.geometry.poly.containsLocation(latLng, statePolys[states[s]])) {
+                    inState = true;
+                    break;
+                }
+            }
+        } else {
+            inState = true;
+        }
+        return inState;
+    }
+
+    
     /* function to calculate a new latitude and longitude based on direction and speed 
        from: http://www.etechpulse.com/2014/02/calculate-latitude-and-longitude-based.html */
     function computeNewLatLng(currentLatitude, currentLongitude, currentHeading, speed) {
@@ -72,10 +91,19 @@ var simulator = function() {
                latitude : (Math.random() * 180) - 90,
                longitude : (Math.random() * 180) - 90,
             */
+
+            var isInUSA = false;
+            var lat, lng;
+            while (!isInUSA) {
+                lat =  24.5 + (Math.random() * 24.4);
+                lng =  -62 - (Math.random() * 62);
+                isInUSA = inUSA(lat, lng);
+            }
+            
             var newReading = {account : accountId,
                               id : deviceId,
-                              latitude : 24.5 + (Math.random() * 24.4), 
-                              longitude : -62 - (Math.random() * 62),
+                              latitude : lat,
+                              longitude : lng,
                               speed: (Math.random() * 4023 * 0.0223693629).toFixed(1), /* up to 90 mph */
                               heading: (Math.random() * 360).toFixed(1)};
             devices[deviceId] = newReading;
