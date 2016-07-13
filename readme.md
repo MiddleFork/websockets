@@ -49,6 +49,64 @@ button.
 account ids 1-10, so enter a value of 1-10 in the account field and
 press 'Start'.  
 
+## Message Specifications
+
+### Messaged TO the server
+
+* send : general communication sent to the server from a socket.
+Includes new title to broadcast to all clients, and subscribe/unsubscribe requests for the socket.
+
+```
+{"title" : "New title",
+ "unsubscribe" : ["3000000010", "3000000011", ...],
+ "subscribe"   : ["3000000020", "3000000021", ...]}
+```
+
+* reading : incoming current raw GPS reading for a specific device
+
+```
+{"account":3,"id":"3000000063","latitude":43.78580828403841,"longitude":-107.68932607986248,"speed":"45.8","heading":"143.4"}
+```
+
+* device : incoming current processed reading data for the device (ex. reverse geocoded GPS)
+
+```
+TBD
+```
+
+* disconnect : disconnect from the websocket server
+
+* stopWS : stop the websocket server.  Sends 'stop' to all connected sockets
+
+
+### Messages FROM the server
+
+* deviceList : provides listing of current devices for an account
+
+```
+["3000000010", "3000000011", "3000000012", ... ]
+```
+
+* reading : provides current raw GPS reading for a specific device
+
+```
+{"account":3,"id":"3000000063","latitude":43.78580828403841,"longitude":-107.68932607986248,"speed":"45.8","heading":"143.4"}
+```
+
+* device : provides current processed reading data for the device (ex. reverse geocoded GPS)
+
+```
+TBD
+```
+
+* message : general messages such as title changes
+
+```
+{"title": "this is the title"}
+```
+
+
+
 
 
 

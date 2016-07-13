@@ -7,6 +7,13 @@
 
 	<h3 id="status">Simulator</h3>
 
+	<p>
+	<label for="state">Limit to: </label>
+	<select id="states" name="state" value="USA">
+	  <option value="USA">USA</option>
+	</select>
+	</p>
+
 	<input type="button" id="stop" class="start" value="Start" />
 
 	<br/>
@@ -3610,10 +3617,26 @@
 	    var status = document.getElementById("status");
         var message = document.getElementById("log");
         var stopButton = document.getElementById("stop");
-        stopButton.onclick = function() {
+        var stateSelect = document.getElementById("states");
+
+		stateSelect.onchange = function() {
+		  simulator.stop();					  
+		  simulator.clear();				  
+		}
+							  
+		stopButton.onclick = function() {
           /* 100 readings ever 100 ms */
-          simulator.start(100, 100, stopButton, status, message);
+          simulator.start(100, 100, stopButton, status, message, stateSelect.value);
         };
+
+		var states = Object.keys(statePolys);
+        var stateSelect = document.getElementById("states");
+        for (var s = 0; s < states.length; s++) {
+          var option = document.createElement("option");
+          option.text = states[s];
+          stateSelect.add(option);
+		}
+							
 	  };
 	</script>
 

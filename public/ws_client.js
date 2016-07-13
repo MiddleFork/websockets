@@ -39,8 +39,8 @@ var websocketClient = function() {
                     console.log("Disconnecting");
                     acct_socket.emit('disconnect');
                     // clear out device list
-                    subscribedDevices = [];
-                    deviceListCallbackFn([], subscribedDevices);
+                    this.subscribeToDevices([]);
+                    callbackFns.deviceList([], subscribedDevices);
                 }
 
                 acct_socket = io.connect(serverURL + accountId);
@@ -66,7 +66,7 @@ var websocketClient = function() {
                         callbackFns.reading(data, readingCounter++);
                     }
                 });
-                
+
             }
         },
         

@@ -9,8 +9,8 @@ var simulator = function() {
     var socket               =  new io.connect(serverURL);
 
 	var sockets              = {};
-    var numAccounts          = 10;
-    var numDevicesPerAccount = 100;
+    var numAccounts          = 2;
+    var numDevicesPerAccount = 200;
     var intervalId;
     var counter              = 0;
     var _batchSize           = 100;
@@ -18,6 +18,7 @@ var simulator = function() {
     var _button;
     var _status;
     var _message;
+    var _state               = "USA";
     var devices = {};
 
     function inUSA(lat, lng) {
@@ -36,6 +37,28 @@ var simulator = function() {
             inState = true;
         }
         return inState;
+    }
+
+    function inState(state, lat, lng) {
+        if (state == "USA") {
+            return inUSA(lat, lng);
+        } else {
+            var inState = false;
+            if (typeof statePolys !== "undefined") {
+                if (typeof statePolys[state] !== "undefined") {
+                    console.log("checking: " + lat, lng);
+                    var latLng = new google.maps.LatLng(lat, lng);
+                    if (google.maps.geometry.poly.containsLocation(latLng, statePolys[state])) {
+                        inState = true;
+                    }
+                } else {
+                    inState = false;
+                }
+            } else {
+                inState = true;
+            }
+            return inState;
+        }
     }
 
     
@@ -92,50 +115,68 @@ var simulator = function() {
                longitude : (Math.random() * 180) - 90,
             */
 
-            var isInUSA = false;
+            var isInState = false;
             var lat, lng;
-            while (!isInUSA) {
+            while (!isInState) {
                 lat =  24.5 + (Math.random() * 24.4);
                 lng =  -62 - (Math.random() * 62);
-                isInUSA = inUSA(lat, lng);
+                isInState = inState(_state, lat, lng);
             }
             
             var newReading = {account : accountId,
                               id : deviceId,
                               latitude : lat,
                               longitude : lng,
-                              speed: (Math.random() * 4023 * 0.0223693629).toFixed(1), /* up to 90 mph */
-                              heading: (Math.random() * 360).toFixed(1)};
+                              speed: (Math.random() * 3576 * 0.0223693629).toFixed(1), /* up to 80 mph */
+                              heading: (Math.random() * 360).toFixed(1),
+                              lastSent: Date.now()};
             devices[deviceId] = newReading;
         } else {
-            /* for an existing device, compute a readonable delta
-               location from the current location based on speed and
-               heading */
-            var newLatLng =  computeNewLatLng(devices[deviceId].latitude,
-                                              devices[deviceId].longitude,
-                                              devices[deviceId].heading,
-                                              devices[deviceId].speed);
-            if (newLatLng !== null) {
-                devices[deviceId].latitude  = newLatLng[0];
-                devices[deviceId].longitude = newLatLng[1];
-                devices[deviceId].speed     = (Math.random() * 4023 * 0.0223693629).toFixed(1); /* up to 90 mph */
-                devices[deviceId].heading   = (Math.random() * 360).toFixed(1);
-            } else {
-                devices[deviceId].speed = 0;
-            }                
-        }
+            var timeNow = Date.now();
+            if (timeNow - devices[deviceId].lastSent > _intervalDelay) {
+                devices[deviceId].lastSent = timeNow;
+            
+                /* for an existing device, compute a readonable delta
+                   location from the current location based on speed and
+                   heading */
+                var newLatLng =  computeNewLatLng(devices[deviceId].latitude,
+                                                  devices[deviceId].longitude,
+                                                  devices[deviceId].heading,
+                                                  devices[deviceId].speed);
+                // if the new location is outside the state (or country), try again with a new heading
+                /*
+                  while (!inState(_state, newLatLng[0], newLatLng[1])) {
+                  newLatLng =  computeNewLatLng(devices[deviceId].latitude,
+                  devices[deviceId].longitude,
+                  (Math.random() * 360).toFixed(1),
+                  devices[deviceId].speed);
+                  }
+                */
                 
-        socket.emit('reading', { reading : devices[deviceId]});
-        counter++;
-        if (_message) {
-            _message.innerHTML = counter + " : " + JSON.stringify(devices[deviceId]);
-        } else {
-            process.stdout.write("Readings send: " + counter + "\r" );
+                if (newLatLng !== null) {
+                    devices[deviceId].latitude  = newLatLng[0];
+                    devices[deviceId].longitude = newLatLng[1];
+                    devices[deviceId].speed     = (Math.random() * 3576 * 0.0223693629).toFixed(1); /* up to 80 mph */
+                    devices[deviceId].heading   = (Math.random() * 360).toFixed(1);
+                } else {
+                    devices[deviceId].speed = 0;
+                }                
+            }
+            
+            socket.emit('reading', { reading : devices[deviceId]});
+            counter++;
+            if (_message) {
+                _message.innerHTML = counter + " : " + JSON.stringify(devices[deviceId]);
+            } else {
+                process.stdout.write("Readings send: " + counter + "\r" );
+            }
         }
         
+        return deviceId;
     }
     
     function sendBatchOf(size) {
+        var devicesInBatch = [];
         for (var i = 0; i < size; i++) {
             var randomAccount = Math.round(Math.random() * (numAccounts - 1));
             sendReading(randomAccount);
@@ -145,16 +186,18 @@ var simulator = function() {
 
     return {
         
-        start : function(batchSize = _batchSize,
+        start : function(batchSize     = _batchSize,
                          intervalDelay = _intervalDelay,
-                         buttonEl = _button,
-                         statusEl = _status,
-                         messageEl = _message) {
+                         buttonEl      = _button,
+                         statusEl      = _status,
+                         messageEl     = _message,
+                         state         = _state) {
             _batchSize     = batchSize;
             _intervalDelay = intervalDelay;
             _message       = messageEl;
             _status        = statusEl;
             _button        = buttonEl;
+            _state         = state;
 
             console.log("Starting simulation sending " + batchSize + " readings every " + intervalDelay + " milliseconds to " + numAccounts + " accounts");
             
@@ -198,7 +241,11 @@ var simulator = function() {
             }
             
         },
-        
+
+        clear : function() {
+            devices = {};
+        },
+
         oneTime : function(accountId) {
             sendReading(accountId);
         }

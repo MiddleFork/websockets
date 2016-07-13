@@ -4,6 +4,7 @@
     "description": "WebSocket prototype",
     "dependencies": {
         "socket.io": "latest",
+        "socket.io-redis": "latest",
         "express": "latest",
         "stomp-client": "latest"
      },

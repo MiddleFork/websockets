@@ -8,12 +8,17 @@ var websocketServer = function() {
 
     var express     = require("express");
     var app         = express();
-    var defaultPort = config.ws.port;
     var title       = config.ws.greeting;
     var namespaces  = {};
     var deviceLists = {};
     var io;
 
+    function hasAccountForReading(reading) {
+        var accountId = Number.parseInt(reading.account);
+        var nsp = namespaces[accountId];
+        return (typeof nsp != "undefined");
+    }
+    
     function getNamespaceForAccount(accountId) {
         var nsp = namespaces[accountId];
 
@@ -22,11 +27,11 @@ var websocketServer = function() {
             nsp = io.of('/' + accountId);
             namespaces[accountId] = nsp;
             console.log("Creating namespace connection for ", accountId);
-
+            
             nsp.on('connection', function (socket) {
                 var nspAccountId = socket.nsp.name.replace( /^\D+/g, '');
                 console.log("CONNECT: ", { nsp: nspAccountId, socket: socket.id});
-                
+
                 /* publish the current device list to new clients */
                 if (deviceLists[nspAccountId]) {
                     socket.emit('deviceList', deviceLists[nspAccountId]);
@@ -38,7 +43,7 @@ var websocketServer = function() {
                     
                     if (data.title) {
                         title = data.title;
-                        console.log("TITLE CHANGE: ", title);
+                        console.log("NSP TITLE CHANGE: ", title);
                         socket.broadcast.emit('message', data);
                     }
                     
@@ -58,7 +63,7 @@ var websocketServer = function() {
                         }
                     }
                     
-                    if (data.reading && data.reading.account && data.reading.id) {
+                    if (data.reading) {
                         processReading(data.reading);
                     }
                     
@@ -99,16 +104,36 @@ var websocketServer = function() {
     }
 
     return {
-        start: function(port = defaultPort) {
+        start: function(port, useRedis) {
+            if (typeof port == "undefined") {
+                console.log("Usage: node ws_server [port [useRedis]]");
+                console.log("No port specified.");
+                console.log("Please provide a port as a command line argument or in config.js");
+                process.exit();
+            }
             
             app.use(express.static(__dirname + '/public'));
             
             io = require('socket.io').listen(app.listen(port));
             console.log("Listening on port " + port);
+
+            if (useRedis === true) {
+                try {
+                    var io_redis      = require('socket.io-redis');
+                    var redis_adapter = io_redis({ host: config.redis.host, port: config.redis.port });
+                    io.adapter(redis_adapter);
+
+                    console.log("Added Redis adapter on port " + config.redis.port);
+                } catch(err) {
+                    console.log("Could not add redis on port " + config.redis.port);
+                    process.exit();
+                }
+            }
             
             /* global namespace */
             io.sockets.on('connection', function (socket) {
                 console.log("CONNECT: ", socket.id, socket.request._query);
+                console.log("INITIAL TITLE: ", title);
                 socket.emit('message', { title: title });
                 
                 socket.on('stopWS', function () {
@@ -121,7 +146,7 @@ var websocketServer = function() {
                               
                     if (data.title) {
                         title = data.title;
-                        console.log("TITLE CHANGE: ", title);
+                        console.log("GLOBAL TITLE CHANGE: ", title);
                         io.sockets.emit('message', data);
                     }
                     
@@ -129,13 +154,28 @@ var websocketServer = function() {
 
                 /* receive readings on global namespace, but send them to account specific namespaces */
                 socket.on('reading', function(data) {
-                    if (data.reading && data.reading.account && data.reading.id) {
+                    if (data.reading) {
                         processReading(data.reading);
                     }
                 });
+
             });
             
         }
 
     };
-}().start();
+}();
+
+/*
+ * show command line arguements
+process.argv.forEach(function (val, index, array) {
+  console.log(index + ': ' + val);
+});
+*/
+
+var nodejspath = process.argv.shift();
+var scriptpath = process.argv.shift();
+var port       = process.argv.shift() || config.ws.port;
+var useRedis   = (process.argv.shift() == "true") || (config.ws.useRedis == "true") || false;
+
+websocketServer.start(port, useRedis);

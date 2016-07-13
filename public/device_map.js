@@ -28,20 +28,22 @@ var deviceMap = function() {
     }
     
     function moveMarker(marker, markerId){
-        var latitude  = marker.getPosition().lat();
-        var longitude = marker.getPosition().lng();
-        
-        latitude  += markerTransitions[markerId].deltaLat;
-        longitude += markerTransitions[markerId].deltaLng;
-
-        var latlng = new google.maps.LatLng(latitude, longitude);
-        marker.setPosition(latlng);
-
-        if( markerTransitions[markerId].deltaNum != numDeltas ){
-            markerTransitions[markerId].deltaNum++;
-            setTimeout(function() {moveMarker(marker, markerId);}, delay);
-        } else {
-            delete markerTransitions[markerId];
+        if (typeof markerTransitions[markerId] != "undefined") {
+            var latitude  = marker.getPosition().lat();
+            var longitude = marker.getPosition().lng();
+            
+            latitude  += markerTransitions[markerId].deltaLat;
+            longitude += markerTransitions[markerId].deltaLng;
+            
+            var latlng = new google.maps.LatLng(latitude, longitude);
+            marker.setPosition(latlng);
+            
+            if( markerTransitions[markerId].deltaNum != numDeltas ){
+                markerTransitions[markerId].deltaNum++;
+                setTimeout(function() {moveMarker(marker, markerId);}, delay);
+            } else {
+                delete markerTransitions[markerId];
+            }
         }
     }
 
