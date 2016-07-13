@@ -5,7 +5,7 @@
 var simulator = function() {
     "use strict";
 
-    var serverURL            = "http://localhost:3700/";
+    var serverURL            = "http://localhost:" + document.location.port + "/";
     var socket               =  new io.connect(serverURL);
 
 	var sockets              = {};
