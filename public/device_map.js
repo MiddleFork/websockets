@@ -70,6 +70,11 @@ var deviceMap = function() {
                     document.getElementById("data-" + id).classList.remove("selected");
                 });
                 
+                marker.addListener("click", function(event) {
+                    document.getElementById("data-" + id).scrollIntoView(true);
+                    deviceMap.centerOnDevice(id);
+                });
+                
             }
             
             if (speed > 0) {
@@ -87,14 +92,28 @@ var deviceMap = function() {
             delete markers[id];
         },
 
+        showDevice : function(id, visible) {
+            var marker = markers[id];
+            marker.setVisible(visible); 
+        },
+
         centerOnDevice : function(id) {
             var marker = markers[id];
             
             if (map && marker) {
+                map.setZoom(8);
                 map.setCenter(marker.getPosition());
             }
-        }
+        },
 
+        zoomToPolygon : function(polygon) {
+            map.fitBounds(polygon.getBounds());
+        },
+
+        resetZoom : function() {
+            map.setZoom(mapOptions.zoom);
+            map.setCenter(mapOptions.center);
+        }
         
     };
 

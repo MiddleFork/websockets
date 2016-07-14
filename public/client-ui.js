@@ -26,14 +26,18 @@ window.onload = function() {
     var deviceCountEl           = document.getElementById("device-value");
     var readingCountEl          = document.getElementById("counter-value");
 
+    var filteringState          = false;
+
 
     /* callback functions provided to the client */
 
     function connectedTo(accountId) {
-        deviceButton.disabled     = false;
-        deviceAllButton.disabled  = false;
-        deviceNoneButton.disabled = false;
-        readingButton.disabled    = false;
+        deviceButton.disabled      = false;
+        deviceAllButton.disabled   = false;
+        deviceNoneButton.disabled  = false;
+        if (readingButton) {
+            readingButton.disabled = false;
+        }
     }
     
     function updateTitle(title) {
@@ -71,19 +75,43 @@ window.onload = function() {
         }
 
     }
+
+    function toggleByState(state) {
+        filteringState = (filteringState == state) ? false : state;
+        var stateTDs = document.getElementsByClassName("state");
+        for (var s = 0; s < stateTDs.length; s++) {
+            if (stateTDs[s].innerHTML != state) {
+                stateTDs[s].parentNode.style.display = filteringState ? "none" : "";
+                deviceMap.showDevice(stateTDs[s].parentNode.id.substr("data-".length), filteringState ? false : true);
+            }
+        }
+        if (filteringState) {
+            deviceMap.zoomToPolygon(states.getStatePolygon(filteringState));
+        } else {
+            deviceMap.resetZoom();
+        }
+
+    }
     
     function updateDevice(device, counter) {
         if (deviceMap) {
             deviceMap.markDevice(device.id, device.latitude, device.longitude, device.speed);
         }
 
+        device.state = (typeof states != "undefined") ? states.getState(device.latitude, device.longitude) : "N/A";
+
         if (device.id) {
             var oldTR = document.getElementById("data-" + device.id);
             if (oldTR) {
                 oldTR.children[1].innerHTML = device.latitude;
                 oldTR.children[2].innerHTML = device.longitude;
-                oldTR.children[3].innerHTML = device.speed;
+                oldTR.children[3].innerHTML = Number.parseInt(device.speed);
                 oldTR.children[4].innerHTML = device.heading;
+                oldTR.children[5].innerHTML = device.state;
+
+                oldTR.style.display = (filteringState && filteringState != device.state) ? "none" : "";
+                deviceMap.showDevice(device.id, (filteringState && filteringState != device.state) ? false : true);
+
             } else {
                 var newTR = document.createElement("tr");
                 newTR.setAttribute("id", "data-" + device.id);
@@ -93,23 +121,27 @@ window.onload = function() {
                 var longTD    = document.createElement("td");
                 var speedTD   = document.createElement("td");
                 var headingTD = document.createElement("td");
+                var stateTD = document.createElement("td");
 
                 latTD.setAttribute("class", "latitude");
                 longTD.setAttribute("class", "longitude");
                 speedTD.setAttribute("class", "speed");
                 headingTD.setAttribute("class", "heading");
+                stateTD.setAttribute("class", "state");
                 
                 idTD.innerHTML      = device.id;
                 latTD.innerHTML     = device.latitude;
                 longTD.innerHTML    = device.longitude;
-                speedTD.innerHTML   = device.speed;
+                speedTD.innerHTML   = Number.parseInt(device.speed);
                 headingTD.innerHTML = device.heading;
+                stateTD.innerHTML   = device.state;
                 
                 newTR.appendChild(idTD);
                 newTR.appendChild(latTD);
                 newTR.appendChild(longTD);
                 newTR.appendChild(speedTD);
                 newTR.appendChild(headingTD);
+                newTR.appendChild(stateTD);
                 
                 /* find proper place to insert row (sorted) */
                 var added = false;
@@ -126,9 +158,20 @@ window.onload = function() {
                 }
 
                 if (deviceMap) {
-                    newTR.onclick = function() {
+                    idTD.onclick = function() {
                         deviceMap.centerOnDevice(device.id);
                     };
+                }
+
+                if (device.state != "N/A") {
+                    stateTD.onclick = function() {
+                        toggleByState(this.innerHTML);
+                    };
+                }
+
+                if (filteringState && filteringState != device.state) {
+                    newTR.style.display = "none";
+                    deviceMap.showDevice(device.id, false);
                 }
             }
             

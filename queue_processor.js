@@ -59,4 +59,6 @@ var queueProcessor = function() {
         }
     };
     
-}().start();
+}();
+
+queueProcessor.start();

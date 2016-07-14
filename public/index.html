@@ -25,7 +25,7 @@
 		
 		<h3>Device List</h3>
 		<div>
-		  <select id="deviceList" multiple="multiple" size="10" style="width: 15em;">
+		  <select id="deviceList" multiple="multiple" size="20" style="width: 15em;">
 		  </select>
 		  <p>
 			<input type="button" id="device-button" value="Selected" disabled="true" />
@@ -38,6 +38,7 @@
 	  </fieldset>
 	</div>
 
+	<!--
 	<div style="width: 20em; float: right;">
 	  <fieldset>
 		<legend>Manual Reading</legend>
@@ -68,13 +69,14 @@
 		</p>
 	  </fieldset>
 	</div>
-
+	-->
 
 	
 	<div id="map_wrapper">
 	  <div id="map"> </div>
 	</div>
 	
+	<hr style="clear:both;"/>
 	
 	<div id="data">
 	  <table id="data-table">
@@ -85,6 +87,7 @@
 			<th>Longitude</th>
 			<th>Speed</th>
 			<th>Heading</th>
+			<th style="text-align: left;">State</th>
 		  </tr>
 		</thead>
 		<tbody id="data-table-body">
@@ -100,6 +103,7 @@
 	<script type="text/javascript" src="/socket.io.js"></script>
 	<script type="text/javascript" src="/ws_client.js"></script>
 	<script type="text/javascript" src="/device_map.js"></script>
+    <script type="text/javascript" src="/states.js"></script>
 	<script type="text/javascript" src="/client-ui.js"></script>
   </body>
 </html>

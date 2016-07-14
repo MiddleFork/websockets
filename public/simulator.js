@@ -21,45 +21,6 @@ var simulator = function() {
     var _state               = "USA";
     var devices = {};
 
-    function inUSA(lat, lng) {
-        var inState = false;
-        if (typeof statePolys !== "undefined") {
-            console.log("checking: " + lat, lng);
-            var latLng = new google.maps.LatLng(lat, lng);
-            var states = Object.keys(statePolys);
-            for (var s = 0; s < states.length; s++) {
-                if (google.maps.geometry.poly.containsLocation(latLng, statePolys[states[s]])) {
-                    inState = true;
-                    break;
-                }
-            }
-        } else {
-            inState = true;
-        }
-        return inState;
-    }
-
-    function inState(state, lat, lng) {
-        if (state == "USA") {
-            return inUSA(lat, lng);
-        } else {
-            var inState = false;
-            if (typeof statePolys !== "undefined") {
-                if (typeof statePolys[state] !== "undefined") {
-                    console.log("checking: " + lat, lng);
-                    var latLng = new google.maps.LatLng(lat, lng);
-                    if (google.maps.geometry.poly.containsLocation(latLng, statePolys[state])) {
-                        inState = true;
-                    }
-                } else {
-                    inState = false;
-                }
-            } else {
-                inState = true;
-            }
-            return inState;
-        }
-    }
 
     
     /* function to calculate a new latitude and longitude based on direction and speed 
@@ -115,12 +76,16 @@ var simulator = function() {
                longitude : (Math.random() * 180) - 90,
             */
 
-            var isInState = false;
             var lat, lng;
+            var isInState = false;
             while (!isInState) {
                 lat =  24.5 + (Math.random() * 24.4);
                 lng =  -62 - (Math.random() * 62);
-                isInState = inState(_state, lat, lng);
+                if (typeof states != "undefined") {
+                    isInState = states.inState(_state, lat, lng);
+                } else {
+                    isInState = true;
+                }
             }
             
             var newReading = {account : accountId,
@@ -129,7 +94,7 @@ var simulator = function() {
                               longitude : lng,
                               speed: (Math.random() * 3576 * 0.0223693629).toFixed(1), /* up to 80 mph */
                               heading: (Math.random() * 360).toFixed(1),
-                              lastSent: Date.now()};
+                              lastSent: Date.now() };
             devices[deviceId] = newReading;
         } else {
             var timeNow = Date.now();
@@ -143,15 +108,14 @@ var simulator = function() {
                                                   devices[deviceId].longitude,
                                                   devices[deviceId].heading,
                                                   devices[deviceId].speed);
+
                 // if the new location is outside the state (or country), try again with a new heading
-                /*
-                  while (!inState(_state, newLatLng[0], newLatLng[1])) {
-                  newLatLng =  computeNewLatLng(devices[deviceId].latitude,
-                  devices[deviceId].longitude,
-                  (Math.random() * 360).toFixed(1),
-                  devices[deviceId].speed);
-                  }
-                */
+                while (!states.inState(_state, newLatLng[0], newLatLng[1])) {
+                    newLatLng =  computeNewLatLng(devices[deviceId].latitude,
+                                                  devices[deviceId].longitude,
+                                                  (Math.random() * 360).toFixed(1),
+                                                  devices[deviceId].speed);
+                }
                 
                 if (newLatLng !== null) {
                     devices[deviceId].latitude  = newLatLng[0];

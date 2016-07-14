@@ -49,6 +49,11 @@ table#data-table tbody tr:hover {
 td.latitude, td.longitude, td.speed, td.heading {
 	text-align: right;
 }
+
+td.state {
+	white-space: nowrap;
+}
+
 td.latitude, td.longitude {
 	font-size: .75em;
 }
@@ -62,7 +67,9 @@ div#counter {
 div#data {
 	clear: left;
 	float:left;
-	width: 40%;
+	width: 90%;
+	height: 20em;
+	overflow: scroll;
 }
 
 div#map_wrapper {
