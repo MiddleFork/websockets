@@ -6,7 +6,7 @@ var simulator = function() {
     "use strict";
 
     var serverURL            = "http://localhost:" + document.location.port + "/";
-    var socket               =  new io.connect(serverURL);
+    var socket               = new io.connect(serverURL);
 
 	var sockets              = {};
     var numAccounts          = 2;
@@ -19,7 +19,8 @@ var simulator = function() {
     var _status;
     var _message;
     var _state               = "USA";
-    var devices = {};
+    var devices              = {};
+    var earthRadiusKM        = 6371.008; // Radius of the earth in km (http://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html)
 
 
     
@@ -28,7 +29,7 @@ var simulator = function() {
     function computeNewLatLng(currentLatitude, currentLongitude, currentHeading, speed) {
         var vNewLatLng = [];
         // convert speed from mph to kph, then assume 1 minute duration, then divide by earth radius in km
-        var distance = (speed / 1.609344 / 60) / 6371;
+        var distance = (speed / 1.609344 / 60) / earthRadiusKM;
         currentHeading = ToRad(currentHeading);
         
         var vLat1 = ToRad(currentLatitude);

@@ -95,7 +95,7 @@ window.onload = function() {
     
     function updateDevice(device, counter) {
         if (deviceMap) {
-            deviceMap.markDevice(device.id, device.latitude, device.longitude, device.speed);
+            deviceMap.markDevice(device);
         }
 
         device.state = (typeof states != "undefined") ? states.getState(device.latitude, device.longitude) : "N/A";
