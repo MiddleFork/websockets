@@ -1,8 +1,9 @@
 var config     = {};
 
-config.ws      = { port: 3700,
-                   useRedis: false,
-                   greeting: "Welcome to the reading monitor" };
+config.ws      = { port        : 3700,
+                   attachQueue : false,
+                   useRedis    : false,
+                   greeting    : "Welcome to the reading monitor" };
 
 config.redis   = { host: "localhost",
                    port: 6379 };

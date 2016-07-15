@@ -30,32 +30,33 @@ var queueProcessor = function() {
 
         start: function() {
 
-            try {
-
-                socket      = new io.connect(config.mq.wsServerURL);
-                mq_client   = new Stomp(config.mq.mqHost, config.mq.mqPort, config.mq.mqLogin, config.mq.mqPasscode);
-                
-                socket.on('stop', function(){
-                    stop();
-                });
-                
-                mq_client.connect(function(sessionId) {
+            mq_client   = new Stomp(config.mq.mqHost, config.mq.mqPort, config.mq.mqLogin, config.mq.mqPasscode);
+            
+            mq_client.connect(
+                function(sessionId) {
                     console.log("Connected to MQ: ", sessionId);
+                    
+                    socket      = new io.connect(config.mq.wsServerURL);
+                    
+                    socket.on('stop', function(){
+                        stop();
+                    });
                     
                     mq_client.subscribe(config.mq.mqName, function(body, headers) {
                         var reading_js = JSON.parse(body);
                         socket.emit('reading', { reading : reading_js});
-                        counter++;
-                        console.log(counter, body );
+                        // counter++;
+                        // console.log(counter, body );
                     });
                     
-                });
-                
-            } catch (err) {
-                console.log("ERROR starting: " + err);
-                console.log("Retry in 60 seconds");
-                setTimeout(this.start, 5000);
-            }
+                },
+                function(err) {
+                    console.log("MQ " + err);
+                    console.log("Retry in 60 seconds");
+                    setTimeout(queueProcessor.start, 60000);
+                }
+            );
+            
         }
     };
     

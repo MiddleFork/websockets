@@ -6,12 +6,13 @@ var config = require('./config');
 var websocketServer = function() {
     "use strict";
 
-    var express     = require("express");
-    var app         = express();
-    var title       = config.ws.greeting;
-    var namespaces  = {};
-    var deviceLists = {};
+    var express       = require("express");
+    var app           = express();
+    var title         = config.ws.greeting;
+    var namespaces    = {};
+    var deviceLists   = {};
     var io;
+    var child_process = require("child_process");
 
     function hasAccountForReading(reading) {
         var accountId = Number.parseInt(reading.account);
@@ -104,30 +105,32 @@ var websocketServer = function() {
     }
 
     return {
-        start: function(port, useRedis) {
+        start: function(port, attachQueue, useRedis) {
             if (typeof port == "undefined") {
-                console.log("Usage: node ws_server [port [useRedis]]");
+                console.log("Usage: node ws_server [port [attachQueue [useRedis]]]");
                 console.log("No port specified.");
                 console.log("Please provide a port as a command line argument or in config.js");
                 process.exit();
             }
-            
+
             app.use(express.static(__dirname + '/public'));
             
             io = require('socket.io').listen(app.listen(port));
             console.log("Listening on port " + port);
 
-            if (useRedis === true) {
-                try {
-                    var io_redis      = require('socket.io-redis');
-                    var redis_adapter = io_redis({ host: config.redis.host, port: config.redis.port });
-                    io.adapter(redis_adapter);
+            // start up the queue processor
+            if (attachQueue === true) {
+                child_process.fork(__dirname + "/queue_processor");
+            }
 
-                    console.log("Added Redis adapter on port " + config.redis.port);
-                } catch(err) {
-                    console.log("Could not add redis on port " + config.redis.port);
-                    process.exit();
-                }
+            // load balance with redis
+            if (useRedis === true) {
+                console.log("Adding Redis adapter on port " + config.redis.port);
+                var io_redis      = require('socket.io-redis');
+                var redis_adapter = io_redis({ host: config.redis.host, port: config.redis.port });
+                redis_adapter.pubClient.on('error', function(err){console.log("Redis " + err);});
+                redis_adapter.subClient.on('error', function(err){console.log("Redis " + err);});
+                io.adapter(redis_adapter);
             }
             
             /* global namespace */
@@ -173,9 +176,10 @@ process.argv.forEach(function (val, index, array) {
 });
 */
 
-var nodejspath = process.argv.shift();
-var scriptpath = process.argv.shift();
-var port       = process.argv.shift() || config.ws.port;
-var useRedis   = (process.argv.shift() == "true") || (config.ws.useRedis == "true") || false;
+var nodejspath  = process.argv.shift();
+var scriptpath  = process.argv.shift();
+var port        = process.argv.shift() || config.ws.port;
+var attachQueue = (process.argv.shift() == "true") || (config.ws.attachQueue == "true") || false;
+var useRedis    = (process.argv.shift() == "true") || (config.ws.useRedis == "true") || false;
 
-websocketServer.start(port, useRedis);
+websocketServer.start(port, attachQueue, useRedis);
