@@ -1,12 +1,20 @@
 {
     "name": "websockets",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "WebSocket prototype",
+    "author": "Steven Pothoven <steven@pothoven.net>",
+    "scripts" : {
+        "start": "node ws_server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/pothoven/websockets"
+    },
     "dependencies": {
         "socket.io": "latest",
         "socket.io-redis": "latest",
         "express": "latest",
         "stomp-client": "latest"
-     },
-    "author": "Steven Pothoven"
+    },
+    "private": true
 }
