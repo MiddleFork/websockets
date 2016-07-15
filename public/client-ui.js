@@ -179,9 +179,9 @@ window.onload = function() {
         }
         
     }
-    
 
-    if (websocketClient) {
+    if (typeof websocketClient != "undefined") {
+        // standard way
 
         websocketClient.start(updateTitle);
 
@@ -247,6 +247,102 @@ window.onload = function() {
             };
         }
         
+    } else if (typeof(Worker) !== "undefined") {
+
+        // start up the webSocketClient as a separate web worker
+        var ws_client = new Worker("ws_client.js");
+        ws_client.addEventListener('message', function(e) {
+            var data = e.data;
+            switch (data.cmd) {
+            case 'title':
+                console.log("CLIENT:" + JSON.stringify(data));
+                updateTitle(data.title);
+                break;
+            case 'connected':
+                console.log("CLIENT:" + JSON.stringify(data));
+                connectedTo(data.accountId);
+                break;
+            case 'deviceList':
+                updateDeviceList(data.deviceList, data.subscribedDevices);
+                break;
+            case 'updateDevice':
+                updateDevice(data.device, data.counter);
+                break;
+            case 'subscribedCount':
+                subscribedDeviceCountEl.innerHTML = data.subscribedCount;
+                break;
+
+            }
+        });
+        ws_client.postMessage({'cmd': 'start'});
+
+        if (titleButton) {
+            titleButton.onclick = function() { ws_client.postMessage(
+                {cmd: 'changeTitle', title: titleEl.value}
+            );};
+        }
+
+        if (accountButton) {
+            accountButton.onclick = function() {
+                if (accountEl && accountEl.value.length > 0) {
+                    ws_client.postMessage(
+                        {cmd: 'connectToAccount', accountId: accountEl.value}
+                    );
+                }
+            };
+        }
+
+        if (deviceButton) {
+            deviceButton.onclick = function() {
+                var selectedOptionEls = deviceListEl.selectedOptions;
+                var devices = [];
+                for (var i = 0; i < selectedOptionEls.length; i++) {
+                    devices.push(selectedOptionEls[i].value || selectedOptionEls[i].text);
+                }
+                ws_client.postMessage(
+                    {cmd: 'subscribeToDevices', devices: devices}
+                );
+            };
+        }
+
+        if (deviceAllButton) {
+            deviceAllButton.onclick = function() {
+                var selectedOptionEls = deviceListEl.options;
+                var devices = [];
+                for (var i = 0; i < selectedOptionEls.length; i++) {
+                    devices.push(selectedOptionEls[i].value || selectedOptionEls[i].text);
+                    selectedOptionEls[i].setAttribute("selected", "selected");
+                }
+                ws_client.postMessage(
+                    {cmd: 'subscribeToDevices', devices: devices}
+                );
+            };
+        }
+
+        if (deviceNoneButton) {
+            deviceNoneButton.onclick = function() {
+                var selectedOptionEls = deviceListEl.selectedOptions;
+                for (var i = 0; i < selectedOptionEls.length; i++) {
+                    selectedOptionEls[i].removeAttribute("selected");
+                }
+                ws_client.postMessage(
+                    {cmd: 'subscribeToDevices', devices: devices}
+                );
+            };
+        }
+
+        if (readingButton) {
+            readingButton.onclick = function() {
+                websocketClient.submitManualReading(accountEl.value,
+                                                    id.value,
+                                                    latitude.value,
+                                                    longitude.value,
+                                                    speed.value,
+                                                    heading.value
+                                                   );
+            };
+        }
+
     } else {
         console.error("WebSocketClient is not initialized");
     }

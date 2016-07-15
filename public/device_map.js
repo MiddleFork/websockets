@@ -208,7 +208,7 @@ var deviceMap = function() {
             setMarkerStopped(marker);
         }
         
-        icon.rotation = heading;
+        icon.rotation = parseInt(heading);
         marker.setIcon(icon);
     }
 

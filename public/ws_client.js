@@ -1,10 +1,12 @@
 /* jshint shadow:true */
 /* jshint sub:true */
+importScripts("socket.io.js");
+
 
 var websocketClient = function() {
     "use strict";
 	
-    var serverURL         = "http://localhost:" + document.location.port + "/";
+    var serverURL         = "http://localhost:" + location.port + "/";
 	var socket            = new io.connect(serverURL);
     var subscribedDevices = [];
     var readingCounter    = 0;
@@ -16,6 +18,7 @@ var websocketClient = function() {
         
         start: function(callbackFn) {
             socket.on('message', function(data){
+                console.log("START:" + JSON.stringify(data));
                 if (callbackFn && data.title) {
                     callbackFn(data.title);
                 }
@@ -113,4 +116,49 @@ var websocketClient = function() {
     };
     
 }();
-    
+
+self.addEventListener('message', function(e) {
+    var data = e.data;
+    console.log("WORKER:" + JSON.stringify(data));
+    switch (data.cmd) {
+    case 'start':
+        //websocketClient = websocketClient(data.url);
+        websocketClient.start(function(title) {self.postMessage({cmd: 'title', title: title});});
+        break;
+    case 'changeTitle':
+        websocketClient.changeTitle(data.title);
+        self.postMessage({cmd: 'title', title: data.title});
+        break;
+    case 'connectToAccount':
+        websocketClient.connectToAccount(data.accountId, {
+            connect    : function(accountId) {
+                self.postMessage({
+                    cmd: 'connected',
+                    accountId: accountId
+                });},
+            deviceList : function(deviceList, subscribedDevices) {
+                self.postMessage({
+                    cmd: 'deviceList',
+                    deviceList: deviceList,
+                    subscribedDevices : subscribedDevices
+                });},
+            reading    : function(device, counter) {
+                self.postMessage({
+                    cmd: 'updateDevice',
+                    device: device,
+                    counter : counter
+                });}
+        });
+        break;
+    case 'subscribeToDevices':
+        var subscribedCount = websocketClient.subscribeToDevices(data.devices).length;
+        self.postMessage({
+            cmd: 'subscribedCount',
+            subscribedCount: subscribedCount
+        });
+
+        break;
+    }
+}, false);
+        
+        

@@ -13,7 +13,7 @@ var simulator = function() {
     var numDevicesPerAccount = 200;
     var intervalId;
     var counter              = 0;
-    var _batchSize           = 100;
+    var _batchSize           = 200;
     var _intervalDelay       = 1000;
     var _button;
     var _status;
@@ -99,9 +99,9 @@ var simulator = function() {
             devices[deviceId] = newReading;
         } else {
             var timeNow = Date.now();
-            if (timeNow - devices[deviceId].lastSent > _intervalDelay) {
+            if (timeNow - devices[deviceId].lastSent > 60000) {
                 devices[deviceId].lastSent = timeNow;
-            
+                
                 /* for an existing device, compute a readonable delta
                    location from the current location based on speed and
                    heading */
@@ -110,8 +110,8 @@ var simulator = function() {
                                                   devices[deviceId].heading,
                                                   devices[deviceId].speed);
 
-                // if the new location is outside the state (or country), try again with a new heading
-                while (!states.inState(_state, newLatLng[0], newLatLng[1])) {
+                // if the new location is outside the state (or country), try again with a new headingy
+                while (newLatLng === null || !states.inState(_state, newLatLng[0], newLatLng[1])) {
                     newLatLng =  computeNewLatLng(devices[deviceId].latitude,
                                                   devices[deviceId].longitude,
                                                   (Math.random() * 360).toFixed(1),
@@ -122,19 +122,25 @@ var simulator = function() {
                     devices[deviceId].latitude  = newLatLng[0];
                     devices[deviceId].longitude = newLatLng[1];
                     devices[deviceId].speed     = (Math.random() * 3576 * 0.0223693629).toFixed(1); /* up to 80 mph */
-                    devices[deviceId].heading   = (Math.random() * 360).toFixed(1);
+                    var newHeading = Math.abs(parseInt(devices[deviceId].heading) + ((Math.random() * 20) - 10));
+                    newHeading = newHeading > 360 ? newHeading - 360 : newHeading;
+                    devices[deviceId].heading   = newHeading.toFixed(1);
                 } else {
                     devices[deviceId].speed = 0;
                 }                
-            }
-            
-            socket.emit('reading', { reading : devices[deviceId]});
-            counter++;
-            if (_message) {
-                _message.innerHTML = counter + " : " + JSON.stringify(devices[deviceId]);
+                
             } else {
-                process.stdout.write("Readings send: " + counter + "\r" );
+                return;
             }
+        }
+            
+        socket.emit('reading', { reading : devices[deviceId]});
+        counter++;
+        
+        if (_message) {
+            _message.innerHTML = counter + " : " + JSON.stringify(devices[deviceId]);
+        } else {
+            process.stdout.write("Readings send: " + counter + "\r" );
         }
         
         return deviceId;
