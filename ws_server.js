@@ -114,6 +114,7 @@ var websocketServer = function() {
             }
 
             app.use(express.static(__dirname + '/public'));
+            app.use('/geolib', express.static(__dirname + '/node_modules/geolib/dist/'));
             
             io = require('socket.io').listen(app.listen(port));
             console.log("Listening on port " + port);

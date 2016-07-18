@@ -14,7 +14,8 @@
         "socket.io": "latest",
         "socket.io-redis": "latest",
         "express": "latest",
-        "stomp-client": "latest"
+        "stomp-client": "latest",
+        "geolib": "latest"
     },
     "private": true
 }

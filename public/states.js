@@ -1,20 +1,24 @@
 /* jshint shadow:true */
 /* jshint sub:true */
 
-// Google removed the "getBounds function for polygons
-google.maps.Polygon.prototype.getBounds = function() {
-    var bounds = new google.maps.LatLngBounds();
-    var paths = this.getPaths();
-    var path;        
-    for (var i = 0; i < paths.getLength(); i++) {
-        path = paths.getAt(i);
-        for (var ii = 0; ii < path.getLength(); ii++) {
-            bounds.extend(path.getAt(ii));
-        }
-    }
-    return bounds;
-};
+var useGoogle = (typeof google != "undefined" && typeof google.maps != "undefined");
+var useGeolib = (!useGoogle && typeof geolib != "undefined");
 
+if (useGoogle) {
+    // Google removed the "getBounds function for polygons
+    google.maps.Polygon.prototype.getBounds = function() {
+        var bounds = new google.maps.LatLngBounds();
+        var paths = this.getPaths();
+        var path;        
+        for (var i = 0; i < paths.getLength(); i++) {
+            path = paths.getAt(i);
+            for (var ii = 0; ii < path.getLength(); ii++) {
+                bounds.extend(path.getAt(ii));
+            }
+        }
+        return bounds;
+    };
+}
 
 var states = function() {
     "use strict";
@@ -3599,14 +3603,17 @@ var states = function() {
      * convert coordinate data into Google Map polygons
      */
     var statePolys = {};
-    if (typeof google != "undefined" && typeof google.maps.Polygon != "undefined") {
-        for (var i = 0; i < statesJSON.states.length; i++) {
-            var stateName = statesJSON.states[i].state;
+    for (var i = 0; i < statesJSON.states.length; i++) {
+        var stateName = statesJSON.states[i].state;
+        
+        if (useGoogle) {
             var stateCoords = [];
             for (var c = 0; c < statesJSON.states[i].coordinates.length; c++) {
                 stateCoords.push(statesJSON.states[i].coordinates[c]);
             }
             statePolys[stateName] = new google.maps.Polygon({paths: stateCoords});
+        } else {
+            statePolys[stateName] = statesJSON.states[i].coordinates;
         }
     }
     var stateNames = Object.keys(statePolys);
@@ -3622,12 +3629,8 @@ var states = function() {
         },
 
         getState : function(lat, lng) {
-            if (typeof google != "undefined" &&
-                typeof google.maps.LatLng != "undefined" &&
-                typeof google.maps.geometry.poly.containsLocation != "undefined") {
-                // console.debug("locating: " + lat, lng);
-
-                var inState;
+            var inState;
+            if (useGoogle) {
                 var latLng = new google.maps.LatLng(lat, lng);
                 for (var s = 0; s < stateNames.length; s++) {
                     if (google.maps.geometry.poly.containsLocation(latLng, statePolys[stateNames[s]])) {
@@ -3635,8 +3638,15 @@ var states = function() {
                         break;
                     }
                 }
-                return inState;
+            } else if (useGeolib) {
+                for (var s = 0; s < stateNames.length; s++) {
+                    if (geolib.isPointInside({latitude: lat, longitude: lng}, statePolys[stateNames[s]])) {
+                        inState = stateNames[s];
+                        break;
+                    }
+                }
             }
+            return inState;
         },
 
         inUSA : function(lat, lng) {
@@ -3645,22 +3655,18 @@ var states = function() {
 
         inState : function(state, lat, lng) {
             if (state == "USA") {
-                return this.inUSA(lat, lng);
+                 return this.inUSA(lat, lng);
             } else {
                 // we could just call this.getState and check if it returns the right state,
                 // but that may involve checking 49 other states unncessarily.
                 // Just check the desired state
                 var inState = false;
-                if (typeof google != "undefined" &&
-                    typeof google.maps.LatLng != "undefined" &&
-                    typeof google.maps.geometry.poly.containsLocation != "undefined") {
-                    // console.debug("checking if " + lat, lng + " is in " + state);
-
-                    if (typeof statePolys[state] !== "undefined") {
+                if (typeof statePolys[state] !== "undefined") {
+                    if (useGoogle) {
                         var latLng = new google.maps.LatLng(lat, lng);
-                        if (google.maps.geometry.poly.containsLocation(latLng, statePolys[state])) {
-                            inState = true;
-                        }
+                        inState = google.maps.geometry.poly.containsLocation(latLng, statePolys[state]);
+                    } else if (useGeolib) {
+                        inState = geolib.isPointInside({latitude: lat, longitude: lng}, statePoly[state]);
                     }
                 }
                 return inState;
@@ -3670,3 +3676,4 @@ var states = function() {
     };
     
 }();
+

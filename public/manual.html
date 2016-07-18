@@ -1,0 +1,49 @@
+<html>
+  <head>
+	<title>Manual Readings</title>
+	<link rel="stylesheet" type="text/css" href="client.css" />
+  </head>
+  <body>
+
+	<div style="width: 20em;">
+	  <fieldset>
+		<legend>Manual Reading</legend>
+		<table>
+		  <tr>
+			<th><label for="account">Account: </label></th>
+			<td><input type="number" id="account" /></td>
+			</div>
+		  </tr>
+		  <tr>
+			<th><label for="id">Device ID: </label></th>
+			<td><input type="text" id="id" /></td>
+		  </tr>
+		  <tr>
+			<th><label for="id">Latitude: </label></th>
+			<td><input type="number" id="latitude" /></td>
+		  </tr>
+		  <tr>
+			<th><label for="id">Longitude: </label></th>
+			<td><input type="number" id="longitude" /></td>
+		  </tr>
+		  <tr>
+			<th><label for="id">Speed: </label></th>
+			<td><input type="number" id="speed" /></td>
+		  </tr>
+		  <tr>
+			<th><label for="id">Heading: </label></th>
+			<td><input type="number" id="heading" /></td>
+		  </tr>
+		</table>
+		<p>
+		  <input type="button" id="reading-button" value="Submit Reading" />
+		</p>
+	  </fieldset>
+	</div>
+
+	<script type="text/javascript" src="/socket.io.js"></script>
+	<script type="text/javascript" src="/ws_client.js"></script>
+	<script type="text/javascript" src="/client-manual.js"></script>
+  </body>
+</html>
+

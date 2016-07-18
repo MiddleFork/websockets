@@ -16,11 +16,6 @@ window.onload = function() {
     var deviceAllButton         = document.getElementById("deviceAll-button");
     var deviceNoneButton        = document.getElementById("deviceNone-button");
 
-    var id                      = document.getElementById("id");
-    var longitude               = document.getElementById("longitude");
-    var latitude                = document.getElementById("latitude");
-    var readingButton           = document.getElementById("reading-button");
-
     var readingTblEl            = document.getElementById("data-table-body");
     var subscribedDeviceCountEl = document.getElementById("subdevice-value");
     var deviceCountEl           = document.getElementById("device-value");
@@ -35,9 +30,6 @@ window.onload = function() {
         deviceButton.disabled      = false;
         deviceAllButton.disabled   = false;
         deviceNoneButton.disabled  = false;
-        if (readingButton) {
-            readingButton.disabled = false;
-        }
     }
     
     function updateTitle(title) {
@@ -181,6 +173,8 @@ window.onload = function() {
     }
 
     if (typeof websocketClient != "undefined") {
+        console.log("Using WebSocket Client");
+
         // standard way
 
         websocketClient.start(updateTitle);
@@ -232,25 +226,15 @@ window.onload = function() {
                     selectedOptionEls[i].removeAttribute("selected");
                 }
                 subscribedDeviceCountEl.innerHTML = websocketClient.subscribeToDevices([]).length;
-            }
-        }
-
-        if (readingButton) {
-            readingButton.onclick = function() {
-                websocketClient.submitManualReading(accountEl.value,
-                                                    id.value,
-                                                    latitude.value,
-                                                    longitude.value,
-                                                    speed.value,
-                                                    heading.value
-                                                   );
             };
         }
+
         
     } else if (typeof(Worker) !== "undefined") {
-
+        console.log("Using Web Worker Client");
+        
         // start up the webSocketClient as a separate web worker
-        var ws_client = new Worker("ws_client.js");
+        var ws_client = new Worker("ww_client.js");
         ws_client.addEventListener('message', function(e) {
             var data = e.data;
             switch (data.cmd) {
@@ -326,22 +310,11 @@ window.onload = function() {
                     selectedOptionEls[i].removeAttribute("selected");
                 }
                 ws_client.postMessage(
-                    {cmd: 'subscribeToDevices', devices: devices}
+                    {cmd: 'subscribeToDevices', devices: []}
                 );
             };
         }
 
-        if (readingButton) {
-            readingButton.onclick = function() {
-                websocketClient.submitManualReading(accountEl.value,
-                                                    id.value,
-                                                    latitude.value,
-                                                    longitude.value,
-                                                    speed.value,
-                                                    heading.value
-                                                   );
-            };
-        }
 
     } else {
         console.error("WebSocketClient is not initialized");
