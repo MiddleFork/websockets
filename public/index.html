@@ -4,73 +4,97 @@
 	<link rel="stylesheet" type="text/css" href="client.css" />
   </head>
   <body>
-	<div style="float:right;">
-	  <label for="title">New title (global): </label>
-	  <input type="text" id="title" />
-	  <input type="button" id="title-button" value="Update Title" />
-	</div>
+	<div id="header">
+	  <div style="float:right;">
+		<label for="title">New title (global): </label>
+		<input type="text" id="title" />
+		<input type="button" id="title-button" value="Update Title" />
+	  </div>
+	  
+   <div id="header_logo">
+	  <h2 id="message">Message</h2>
+   </div>
+   <div style="clear:both;"></div>
 
-	<h2 id="message">Message</h2>
+   <div id="nav_tabs">
+      <ul>
+		<li id="locations-tab" class="selected">
+		  <a class="locations-tab" href="#locations" onclick="selectTab('locations', ['devices']);" >
+			<span class="link_text">Locations</span>
+		  </a>
+		</li>
+		<li id="devices-tab">
+		  <a class="devices-tab" href="#devices"  onclick="selectTab('devices', ['locations']);" >
+			<span class="link_text">Devices</span></a>
+		</li>
+	  </ul>
+   </div>
+   <div style="clear:both; height:0;"> </div>
+   <div id="nav_divider"> </div>
 
-	<div style="float: left;">
-	  <fieldset style="width: 100%;">
-		<legend>Settings</legend>
-
-		<div>
-		  <label for="account">Account: </label>
-		  <input type="number" id="account" />
-		  <input type="button" id="account-button" value="Start" />
-		</div>
-		<br/>
-		
-		<h3>Device List</h3>
-		<div>
-		  <select id="deviceList" multiple="multiple" size="20" style="width: 15em;">
-		  </select>
-		  <p>
-			<input type="button" id="device-button" value="Selected" disabled="true" />
-			<input type="button" id="deviceAll-button" value="All" disabled="true" />
-			<input type="button" id="deviceNone-button" value="None" disabled="true" />
-		  </p>
-		</div>
-		<br/>
-
-	  </fieldset>
-	</div>
-
-	<div id="map_wrapper">
-	  <div id="map"> </div>
-	</div>
-	
-	<hr style="clear:both;"/>
-	
-	<div id="data">
-	  <table id="data-table">
-		<thead>
-		  <tr>
-			<th>Device ID</th>
-			<th>Latitude</th>
-			<th>Longitude</th>
-			<th>Speed</th>
-			<th>Heading</th>
-			<th style="text-align: left;">State</th>
-		  </tr>
-		</thead>
-		<tbody id="data-table-body">
-		</tbody>
-	  </table>
-	</div>
-
-	<div id="counter">
-	  Subscribed Devices: <span id="subdevice-value">#</span> | Total Devices: <span id="device-value">#</span> | Readings received: <span id="counter-value">#</span>
-	</div>
-
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
-<!--	<script type="text/javascript" src="/socket.io.js"></script> -->
-<!--	<script type="text/javascript" src="/ws_client.js"></script> -->
-<!--	<script type="text/javascript" src="/device_transitions.js"></script> -->
-	<script type="text/javascript" src="/device_map.js"></script>
-    <script type="text/javascript" src="/states.js"></script>
-	<script type="text/javascript" src="/client-ui.js"></script>
+   <div id="content">
+	 
+	 <div id="devices" style="display:none;">
+	   <fieldset>
+		 <legend>Settings</legend>
+		 
+		 <div>
+		   <label for="account">Account: </label>
+		   <input type="number" id="account" />
+		   <input type="button" id="account-button" value="Start" />
+		 </div>
+		 <br/>
+		 
+		 <h3>Device List</h3>
+		 <div>
+		   <select id="deviceList" multiple="multiple" size="20" style="width: 15em;">
+		   </select>
+		   <p>
+			 <input type="button" id="device-button" value="Selected" disabled="true" />
+			 <input type="button" id="deviceAll-button" value="All" disabled="true" />
+			 <input type="button" id="deviceNone-button" value="None" disabled="true" />
+		   </p>
+		 </div>
+		 <br/>
+		 
+	   </fieldset>
+	 </div>
+	 
+	 <div id="locations">
+	   <div id="map_wrapper">
+		 <div id="map"> </div>
+	   </div>
+	   
+	   <div id="data">
+		 <table id="data-table">
+		   <thead>
+			 <tr>
+			   <th style="text-align: left;">Device ID</th>
+			   <th>Latitude</th>
+			   <th>Longitude</th>
+			   <th>Speed</th>
+			   <th>Heading</th>
+			   <th style="text-align: left;">State</th>
+			 </tr>
+		   </thead>
+		   <tbody id="data-table-body">
+		   </tbody>
+		 </table>
+	   </div>
+	   
+	 </div>
+   </div>
+   
+   <div id="counter">
+	 Subscribed Devices: <span id="subdevice-value">#</span> | Total Devices: <span id="device-value">#</span> | Readings received: <span id="counter-value">#</span>
+   </div>
+   
+   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+   <!--	<script type="text/javascript" src="/socket.io.js"></script> -->
+   <!--	<script type="text/javascript" src="/ws_client.js"></script> -->
+   <!--	<script type="text/javascript" src="/device_transitions.js"></script> -->
+   <script type="text/javascript" src="/device_map.js"></script>
+   <script type="text/javascript" src="/states.js"></script>
+   <script type="text/javascript" src="/client-ui.js"></script>
   </body>
 </html>

@@ -321,3 +321,12 @@ window.onload = function() {
     }
 
 };
+
+function selectTab(tabToSelect, tabsToDeselect) {
+    document.getElementById(tabToSelect).style.display='';
+    document.getElementById(tabToSelect + '-tab').className='selected';
+    for (var i in tabsToDeselect) {
+        document.getElementById(tabsToDeselect[i]).style.display='none';
+        document.getElementById(tabsToDeselect[i] + '-tab').className='';
+    }
+}
