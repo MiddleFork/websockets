@@ -128,12 +128,21 @@ var deviceMap = function() {
         markDevice : function(device) {
             var marker = markers[device.id];
             if (marker) {
+                var distanceMoved = getDistanceBetweenLatLngInKm(marker.getPosition().lat(),
+                                                                 marker.getPosition().lng(),
+                                                                 device.latitude,
+                                                                 device.longitude);
+
+                // if the device is visible,
+                // and it has moved,
+                // and it hasn't move more than a reasonable amount (ignore anomolies)
                 if (marker.getVisible() &&
-                    maxDistanceToTrans > getDistanceBetweenLatLngInKm(marker.getPosition().lat(),
-                                                                      marker.getPosition().lng(),
-                                                                      device.latitude,
-                                                                      device.longitude)) {
+                    distanceMoved > 0 &&
+                    distanceMoved <= maxDistanceToTrans) {
+
+                    // if it is moving, make sure it's not showing a 'stopped' icon
                     if (device.speed > 0) { setMarkerSpeedAndHeading(marker, device.speed, device.heading); }
+
                     transition(marker, device.id, device.latitude, device.longitude,
                                function(){ if (device.speed === 0) { setMarkerStopped(marker); } });
                 } else {
