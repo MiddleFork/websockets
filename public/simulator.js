@@ -5,7 +5,7 @@
 var simulator = function() {
     "use strict";
 
-    var serverURL            = "http://" + location.hostname + ":" + location.port + "/";
+    var serverURL            = "ws://" + location.hostname + ":" + location.port + "/";
     var socket               = new io.connect(serverURL);
 
 	var sockets              = {};

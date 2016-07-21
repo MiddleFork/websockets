@@ -8,7 +8,7 @@ config.ws      = { port        : 3700,
 config.redis   = { host: "localhost",
                    port: 6379 };
 
-config.mq      = { wsServerURL : "http://localhost:3700/",
+config.mq      = { wsServerURL : "ws://localhost:3700/",
                    mqHost      : "localhost",
                    mqPort      : 61613,
                    mqLogin     : "admin",

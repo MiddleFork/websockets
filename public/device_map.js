@@ -116,7 +116,7 @@ var deviceMap = function() {
 
     
     return {
-        
+
         /*
          * add or move a marker for a device on the map
          * device = {id        : n, 
