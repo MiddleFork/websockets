@@ -2,6 +2,7 @@
 /* jshint sub:true */
 
 var config = require('./config');
+const io = require('socket.io');
 
 var websocketServer = function() {
     "use strict";
@@ -183,4 +184,4 @@ var port        = process.argv.shift() || config.ws.port;
 var attachQueue = (process.argv.shift() == "true") || (config.ws.attachQueue == "true") || false;
 var useRedis    = (process.argv.shift() == "true") || (config.ws.useRedis == "true") || false;
 
-websocketServer.start(port, attachQueue, useRedis);
+//websocketServer.start(port, attachQueue, useRedis);
